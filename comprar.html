@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+   <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Comprar Entrada</title>
+     <link rel="stylesheet" href="css/estilo.css">
+   </head>
+  <body>
+      <div class="direccion">
+            <p>
+              Ubicanos en: Calle 25 de Mayo, Esquina San Martin
+            </p>
+       </div>
+    
+        <div class="cabecera">
+           <h1>
+             <img src="logo/centro cultural mmb.jpeg" alt="logo mmb" class="logo">
+           </h1>
+            <ul class="menu">
+             <li><a href="index.html">Cartelera</a></li>
+             <li><a href="promociones.html">Promociones</a></li>
+             <li><a href="actividades.html">Actividades</a></li>
+             <li><a href="#proximamente">Proximamente</a></li>
+           </ul>
+      </div>
+
+      <div class="seccion-compra">
+    <div class="panel-mapa">
+      <div class="pantalla-barra">PANTALLA</div>
+      <div class="leyenda">
+        <div class="leyenda-item"><span class="lc" style="background:#b39ddb"></span> Zona A</div>
+        <div class="leyenda-item"><span class="lc" style="background:#546e7a"></span> Zona B</div>
+        <div class="leyenda-item"><span class="lc" style="background:#ef9a9a"></span> Zona C</div>
+        <div class="leyenda-item"><span class="lc" style="background:#80deea"></span> Zona D</div>
+        <div class="leyenda-item"><span class="lc" style="background:#c0392b"></span> Ocupada</div>
+        <div class="leyenda-item"><span class="lc" style="background:#1f6feb"></span> Seleccionada</div>
+      </div>
+      <div class="cargando" id="cargando">⏳ Cargando butacas...</div>
+      <div id="cartel-completa">
+        <div style="font-size:2.5rem;">🎭</div>
+        <div style="color:#c0392b;font-size:1.4rem;font-weight:bold;">SALA COMPLETA</div>
+        <div style="color:#8b949e;font-size:0.88rem;">Todas las butacas para<br><strong style="color:white;" id="nombre-pelicula-cartel"></strong><br>han sido vendidas.</div>
+        <a href="index.html" style="margin-top:8px;background:#1f6feb;color:white;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">Volver a la cartelera</a>
+      </div>
+      <div class="aviso-cantidad" id="aviso-cantidad">
+        Ingresá la <span>cantidad de entradas</span> que querés comprar y hacé clic en <span>Confirmar</span>.
+      </div>
+      <div class="sala-wrapper">
+        <div id="plano"></div>
+      </div>
+      <div class="barra-resumen">
+        <div class="barra-izq"><span>Butacas:</span><div id="tags"></div></div>
+        <div class="barra-total">Total: <span id="contador">0</span></div>
+      </div>
+    </div>
+
+    <div class="panel-form">
+      <h3>Comprar Entrada</h3>
+      <div class="sep"></div>
+      <form id="form-compra">
+        <div class="fc">
+          <svg width="15" height="15" fill="none" stroke="#8b949e" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="text" id="nombres" placeholder="Ingrese su nombre" required>
+        </div>
+        <div class="fc">
+          <svg width="15" height="15" fill="none" stroke="#8b949e" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="text" id="apellidos" placeholder="Ingrese su apellido" required>
+        </div>
+        <div class="fc">
+          <svg width="15" height="15" fill="none" stroke="#8b949e" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>
+          <input type="email" id="correo" placeholder="Ingrese su correo" required>
+        </div>
+        <div class="fl">Cantidad de entradas</div>
+        <div class="cantidad-wrap">
+          <input class="fcant" type="number" id="cantidad" min="1" max="10" placeholder="Ej: 2">
+          <button type="button" class="btn-conf" onclick="confirmarCantidad()">Confirmar</button>
+        </div>
+        <div class="fhint" id="hint-cantidad">Ingresá cuántas entradas querés para habilitar la selección.</div>
+        <div class="flinea"><span>Precio unitario:</span><span id="precio-unit">$0</span></div>
+        <div class="fmonto"><span class="lbl">Monto final:</span><span class="val" id="monto-final">$0</span></div>
+        <div class="finfo">Alias: <span>centrocultural.nx</span></div>
+        <div class="finfo">Comprobante: <span>3827-655623</span></div>
+        <button class="btn-comprar" type="submit" id="btn-comprar" disabled>Comprar</button>
+      </form>
+    </div>
+  </div>
+      
+    <!--Pie de pagina: Localidad-->
+    <div class="pie">
+        <p>
+         Aimogasta-La Rioja
+        </p>
+    </div>
+
+    <script>
+    var params   = new URLSearchParams(window.location.search);
+    var pelicula = params.get("pelicula") || "Función";
+    var precio   = parseInt(params.get("precio")) || 0;
+    document.getElementById("precio-unit").textContent = "$" + precio.toLocaleString("es-AR");
+    document.getElementById("nombre-pelicula-cartel").textContent = pelicula;
+
+    var SCRIPT_POST = "https://script.google.com/macros/s/AKfycbxCc6Ub3R3nWAZVKpGQY8Dbk38gg33VmyvTvt13RNfa5B9r9ir-DOQLxm5T0EFjYqCc/exec";
+    var SCRIPT_GET  = "https://script.google.com/macros/s/AKfycbxCc6Ub3R3nWAZVKpGQY8Dbk38gg33VmyvTvt13RNfa5B9r9ir-DOQLxm5T0EFjYqCc/exec";
+
+    var TOTAL_BUTACAS  = 250;
+    var MAX            = 1;
+    var cantConfirmada = false;
+    var sel            = {};
+    var OCUPADAS       = [];
+
+     // ZONA A: 4 filas (4,4,3,4) = 15 butacas
+    var ZONA_A = [];
+    var nA = 1;
+    var cantA = [4,4,3,4];
+    for (var i = 0; i < cantA.length; i++) {
+      var f = [];
+      for (var j = 0; j < cantA[i]; j++) { f.push(nA++); }
+      ZONA_A.push(f);
+    }
+
+    // ZONA B: 12 filas de 13 + 1 fila de 12 = 168 butacas
+    var ZONA_B = [];
+    var nB = 1;
+
+   // primera fila con espacio vacío al inicio
+   var primeraFila = ["VACIO"];
+
+   for (var j = 0; j < 12; j++) {
+     primeraFila.push(nB++);
+   }
+
+   ZONA_B.push(primeraFila);
+
+    // filas normales
+   for (var i = 0; i < 12; i++) {
+
+    var f = [];
+
+    for (var j = 0; j < 13; j++) {
+      f.push(nB++);
+    }
+
+     ZONA_B.push(f);
+    }
+
+    // ZONA C: 13 filas = 43 butacas
+    var ZONA_C = [];
+    var nC = 1;
+    var cantC = [3,3,4,4,4,3,3,4,3,3,3,3,3];
+    for (var i = 0; i < cantC.length; i++) {
+      var f = [];
+      for (var j = 0; j < cantC[i]; j++) { f.push(nC++); }
+      ZONA_C.push(f);
+    }
+
+    // ZONA D: 24 butacas
+    var ZONA_D = [];
+    for (var j = 1; j <= 24; j++) { ZONA_D.push(j); }
+
+     function cargarOcupadas() {
+      document.getElementById("cargando").style.display = "block";
+      fetch(SCRIPT_GET + "?pelicula=" + encodeURIComponent(pelicula))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          OCUPADAS = [];
+          for (var i = 0; i < data.length; i++) {
+            if(data[i].pelicula && data[i].pelicula.toString().trim().toLowerCase()=== pelicula.toString().trim().toLowerCase() && data[i].butacas){
+              for (var j = 0; j<data[i].butacas.length; j++){
+                var b = data[i].butacas[j].trim();
+                if (b){ OCUPADAS.push(b);
+
+                 }
+              }
+            }
+          }
+          document.getElementById("cargando").style.display = "none";
+          construirPlano();
+          if (OCUPADAS.length >= TOTAL_BUTACAS){
+            mostrarSalaCompleta();
+          } 
+        })
+        .catch(function() {
+          document.getElementById("cargando").style.display = "none";
+          construirPlano();
+        });
+    }
+       function construirPlano() {
+  var plano = document.getElementById("plano");
+  plano.innerHTML = "";
+       
+   // ─────────────────────────
+  // GRID PRINCIPAL
+  // ─────────────────────────
+
+  var grid = document.createElement("div");
+  grid.className = "layout-grid";
+
+   // ─────────────────────────
+  // ENTRADA
+  // ─────────────────────────
+var entrada = document.createElement("div");
+entrada.className = "entrada";
+grid.appendChild(entrada);
+
+  // ─────────────────────────
+  // ZONA A ARRIBA
+  // ─────────────────────────
+
+  var colA = document.createElement("div");
+  colA.className = "col-a";
+
+  colA.innerHTML =
+    '<span class="zona-tag" style="color:#b39ddb;background:#b39ddb22;">ZONA A</span>';
+
+  for (var i = 0; i < ZONA_A.length; i++) {
+    var fila = crearFila("A", ZONA_A[i], "zA");
+    colA.appendChild(fila);
+  }
+
+  grid.appendChild(colA);
+
+
+
+  // ESCALERA IZQUIERDA
+  var escIzq = document.createElement("div");
+  escIzq.className = "esc-izq";
+  grid.appendChild(escIzq);
+
+  // ZONA B
+  var colB = document.createElement("div");
+  colB.className = "col-b";
+
+  colB.innerHTML =
+    '<span class="zona-tag" style="color:#80b3c4;background:#546e7a22;">ZONA B</span>';
+
+  for (var i = 0; i < ZONA_B.length; i++) {
+    var fila = crearFila("B", ZONA_B[i], "zB");
+    colB.appendChild(fila);
+  }
+
+  grid.appendChild(colB);
+
+  
+   // ─────────────────────────
+  // PASILLO HORIZONTAL
+  // ─────────────────────────
+
+   var pasillo = document.createElement("div");
+   pasillo.className = "pasillo-horizontal";
+
+   plano.appendChild(pasillo);
+
+  // ESCALERA DERECHA
+  var escDer = document.createElement("div");
+  escDer.className = "esc-der";
+  grid.appendChild(escDer);
+
+  var pasillo = document.createElement("div");
+ pasillo.className = "pasillo-horizontal";
+
+
+  // ZONA C
+  var colC = document.createElement("div");
+  colC.className = "col-c";
+
+  colC.innerHTML =
+    '<span class="zona-tag" style="color:#ef9a9a;background:#ef9a9a22;">ZONA C</span>';
+
+  for (var i = 0; i < ZONA_C.length; i++) {
+    var fila = crearFila("C", ZONA_C[i], "zC");
+    colC.appendChild(fila);
+  }
+
+  grid.appendChild(colC);
+
+  // MOSTRAR GRID
+  plano.appendChild(grid);
+
+
+  // ─────────────────────────
+  // ZONA D ABAJO
+  // ─────────────────────────
+
+  var divD = document.createElement("div");
+
+divD.style.marginTop = "10px";
+divD.style.display = "flex";
+divD.style.flexDirection = "column";
+divD.style.alignItems = "center";
+
+divD.innerHTML =
+  '<span class="zona-tag" style="color:#80deea;background:#80deea22;">ZONA D</span>';
+
+var filaD = crearFila("D", ZONA_D, "zD");
+
+filaD.style.justifyContent = "center";
+
+divD.appendChild(filaD);
+
+plano.appendChild(divD);
+ }
+
+    function crearFila(zona, numeros, clase) {
+
+  var fila = document.createElement("div");
+  fila.className = "fila-b";
+
+  for (var j = 0; j < numeros.length; j++) {
+
+    // espacio vacío
+    if (numeros[j] === "VACIO") {
+
+      var vacio = document.createElement("div");
+      vacio.className = "b invisible";
+      fila.appendChild(vacio);
+
+    } else {
+
+      fila.appendChild(
+        crearButaca(zona, numeros[j], clase)
+      );
+
+    }
+  }
+
+  return fila;
+  }
+
+    function crearButaca(zona, numero, clase) {
+      var id      = zona + "-" + numero;
+      var ocupada = OCUPADAS.indexOf(id) !== -1;
+      var el      = document.createElement("div");
+      if (ocupada) {
+        el.className = "b ocupada";
+      } else {
+        el.className = "b " + clase + (cantConfirmada ? "" : " bloqueada");
+        (function(eid, eel, ecl) {
+          eel.onclick = function() { toggleB(eid, eel, ecl); };
+        })(id, el, clase);
+      }
+      el.textContent = numero;
+      el.setAttribute("data-id", id);
+      return el;
+    }
+
+    function mostrarSalaCompleta() {
+      var p = document.getElementById("plano");
+      if (p) p.style.opacity = "0.3";
+      document.getElementById("aviso-cantidad").style.display = "none";
+      document.getElementById("cartel-completa").style.display = "flex";
+      document.getElementById("cantidad").disabled = true;
+      document.getElementById("btn-comprar").disabled = true;
+      document.getElementById("btn-comprar").textContent = "Sala completa";
+    }
+
+    function confirmarCantidad() {
+      var val = parseInt(document.getElementById("cantidad").value);
+      if (!val || val < 1) { alert("Ingresá una cantidad válida."); return; }
+      MAX = val; cantConfirmada = true; sel = {};
+      var todas = document.querySelectorAll(".b");
+      for (var i = 0; i < todas.length; i++) {
+        if (!todas[i].classList.contains("ocupada")) todas[i].classList.remove("bloqueada");
+      }
+      document.getElementById("aviso-cantidad").style.display = "none";
+      document.getElementById("hint-cantidad").textContent =
+        "Seleccioná exactamente " + MAX + " butaca" + (MAX > 1 ? "s" : "") + " en el mapa.";
+      document.getElementById("tags").innerHTML = "";
+      document.getElementById("contador").textContent = "0";
+      document.getElementById("monto-final").textContent = "$0";
+      document.getElementById("btn-comprar").disabled = true;
+    }
+
+    function toggleB(id, el, clase) {
+      if (!cantConfirmada) { alert("Primero ingresá la cantidad y hacé clic en Confirmar."); return; }
+      if (sel[id]) {
+        delete sel[id];
+        el.className = "b " + clase;
+      } else {
+        if (Object.keys(sel).length >= MAX) {
+          el.style.animation = "none"; void el.offsetWidth;
+          el.style.animation = "sacudir .3s ease";
+          alert("Ya seleccionaste " + MAX + " butaca" + (MAX > 1 ? "s" : "") + ". Hacé clic en una seleccionada para cambiarla.");
+          return;
+        }
+        sel[id] = true;
+        el.className = "b " + clase + " seleccionada";
+      }
+      actualizar();
+    }
+
+    function actualizar() {
+      var ids = Object.keys(sel).sort();
+      var cant = ids.length;
+      var tags = document.getElementById("tags");
+      tags.innerHTML = "";
+      for (var i = 0; i < ids.length; i++) {
+        var t = document.createElement("span");
+        t.className = "tag-b";
+        t.textContent = ids[i];
+        tags.appendChild(t);
+      }
+      document.getElementById("contador").textContent = cant;
+      document.getElementById("monto-final").textContent = "$" + (cant * precio).toLocaleString("es-AR");
+      document.getElementById("btn-comprar").disabled = (cant !== MAX);
+    }
+
+    document.getElementById("form-compra").addEventListener("submit", function(e) {
+      e.preventDefault();
+      var ids = Object.keys(sel).sort();
+      if (ids.length !== MAX) { alert("Seleccioná exactamente " + MAX + " butaca(s)."); return; }
+      var nombre   = document.getElementById("nombres").value;
+      var apellido = document.getElementById("apellidos").value;
+      var correo   = document.getElementById("correo").value;
+      var cant     = ids.length;
+      var total    = cant * precio;
+      var butacas  = ids.join(", ");
+      var data = new URLSearchParams();
+      data.append("fecha", new Date().toLocaleString());
+      data.append("nombres", nombre); data.append("apellidos", apellido);
+      data.append("correo", correo); data.append("cantidad", cant);
+      data.append("pelicula", pelicula); data.append("butacas", butacas);
+      data.append("precio_unitario", precio); data.append("monto_final", total);
+      fetch(SCRIPT_POST, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: data.toString()
+      })
+      .then(function(r) { return r.text(); })
+      .then(function() {
+        alert("¡Gracias " + nombre + " " + apellido + "!\nButacas: " + butacas + "\nRecibirás el ticket en " + correo);
+        window.location.href = "index.html";
+      })
+      .catch(function() {
+        alert("¡Gracias " + nombre + " " + apellido + "!\nButacas: " + butacas + "\nRecibirás el ticket en " + correo);
+        window.location.href = "index.html";
+      });
+    });
+
+    cargarOcupadas();
+
+        
+        
+  </script>
+   
+
+  </body>
+</html>
